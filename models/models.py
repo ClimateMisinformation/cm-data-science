@@ -7,8 +7,12 @@ from sklearn.multiclass import OneVsOneClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.metrics import classification_report
-
-
+from sklearn.dummy import DummyClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import KFold
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
 
 
 def split_train_test(data):
@@ -35,13 +39,51 @@ def split_train_test(data):
 def evaluation(Y_test, Y_pred, model):
     cm = confusion_matrix(Y_test, Y_pred)
     accuracy = float(cm.diagonal().sum()) / len(Y_test)
-    print("Accuracy of " + model + " on test set : ", accuracy)
+    print("\nAccuracy of " + model + " on test set : ", accuracy)
 
     print(cm)
 
     report = classification_report(Y_test, Y_pred)
 
     print(report)
+
+    precision = precision_score(Y_test, Y_pred, labels=[0], average="weighted")
+    recall = recall_score(Y_test, Y_pred, labels=[0], average="weighted")
+
+    eval_format_string = "\n'Model': '{}', 'Embedding': '{}',"\
+        + "\n'Accuracy': {:>0.{display_precision}f},"\
+        + "\n'Precision (class 0)': {:>0.{display_precision}f},"\
+        + "'Recall (class 0)': {:>0.{display_precision}f},"\
+        + ""
+    print(eval_format_string.format(model, "TBC", accuracy, precision, recall, display_precision=3))
+
+    return
+
+def Dummy(X_train, Y_train, X_test, Y_test):
+
+    model = 'stratified dummy'
+
+    classifier = DummyClassifier(strategy="stratified", random_state=42)
+
+    classifier.fit(X_train, Y_train)
+
+    Y_pred = classifier.predict(X_test)
+
+    evaluation(Y_test, Y_pred, model)
+
+    return
+
+def NaiveBayes(X_train, Y_train, X_test, Y_test):
+
+    model = 'naive bayes'
+
+    classifier = GaussianNB()
+
+    classifier.fit(X_train, Y_train)
+
+    Y_pred = classifier.predict(X_test)
+
+    evaluation(Y_test, Y_pred, model)
 
     return
 
@@ -73,10 +115,19 @@ def One_vs_One_SVM(X_train, Y_train, X_test, Y_test):
 def RandomForest(X_train, Y_train, X_test, Y_test):
     model = 'random forest'
 
-
     #TODO: FINE TUNE RANDOM FOREST
-    classifier = RandomForestClassifier(n_estimators=30)
-    classifier.fit(X_train, Y_train)
+    param_grid = {
+            "n_estimators": [30, 50, 70],
+             "max_depth": [3, 5, None],
+             }
+    kfold = KFold(n_splits=10, shuffle=True, random_state=42)
+    grid = GridSearchCV(RandomForestClassifier(random_state=42), param_grid, cv=kfold)
+    grid.fit(X_train, Y_train)
+
+    print("\nTuned {0} parameters: {1}".format(model, grid.best_params_))
+
+    classifier = grid.best_estimator_
+    # classifier.fit(X_train, Y_train)
 
     Y_pred = classifier.predict(X_test)
 
