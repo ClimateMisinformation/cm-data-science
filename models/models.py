@@ -1,4 +1,8 @@
+import matplotlib.pyplot as plt
+import seaborn as sns; sns.set()
 import pandas as pd
+pd.set_option('precision', 2)
+from datetime import datetime
 from sklearn.model_selection import train_test_split
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.svm import SVC
@@ -13,6 +17,8 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import KFold
 from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
+from sklearn.metrics import roc_auc_score
+from sklearn.metrics import log_loss
 
 
 def split_train_test(data):
@@ -36,42 +42,53 @@ def split_train_test(data):
     return X_train, Y_train, X_test, Y_test
 
 
-def evaluation(Y_test, Y_pred, model):
+def evaluation(Y_test, Y_pred, Y_prob, model, fancy_plots=True):
     cm = confusion_matrix(Y_test, Y_pred)
     accuracy = float(cm.diagonal().sum()) / len(Y_test)
-    print("\nAccuracy of " + model + " on test set : ", accuracy)
+#     print("\nAccuracy of " + model + " on test set : ", accuracy)
 
-    print(cm)
+    if fancy_plots:
+        sns.heatmap(cm, square=False, annot=True, fmt='d', cbar=True, center=0)
+        plt.xlabel('actual')
+        plt.ylabel('predicted');
+        plt.show()
+    else:
+        print(cm)
 
     report = classification_report(Y_test, Y_pred)
-
     print(report)
 
     precision = precision_score(Y_test, Y_pred, labels=[0], average="weighted")
     recall = recall_score(Y_test, Y_pred, labels=[0], average="weighted")
+    if Y_prob is None:
+        rocauc, logloss = None, None
+    else:
+        rocauc = roc_auc_score(Y_test, Y_prob, multi_class="ovr", average="macro")
+        logloss = log_loss(Y_test, Y_prob)
 
-    eval_format_string = "\n'Model': '{}', 'Embedding': '{}',"\
-        + "\n'Accuracy': {:>0.{display_precision}f},"\
-        + "\n'Precision (class 0)': {:>0.{display_precision}f},"\
-        + "'Recall (class 0)': {:>0.{display_precision}f},"\
-        + ""
-    print(eval_format_string.format(model, "TBC", accuracy, precision, recall, display_precision=3))
+    eval_dict = {"Model": model,
+                "Accuracy": accuracy,
+                "Precision (class 0)": precision,
+                "Recall (class 0)": recall,
+                "ROC AUC (ovr)": rocauc,
+                "Cross-entropy loss": logloss,
+                }
 
-    return
+    return eval_dict
 
 def Dummy(X_train, Y_train, X_test, Y_test):
 
-    model = 'stratified dummy'
+    model = 'pick most frequent'
 
-    classifier = DummyClassifier(strategy="stratified", random_state=42)
+    classifier = DummyClassifier(strategy="most_frequent", random_state=42)
 
     classifier.fit(X_train, Y_train)
 
     Y_pred = classifier.predict(X_test)
+    Y_prob = classifier.predict_proba(X_test)
 
-    evaluation(Y_test, Y_pred, model)
+    return evaluation(Y_test, Y_pred, Y_prob, model)
 
-    return
 
 def NaiveBayes(X_train, Y_train, X_test, Y_test):
 
@@ -82,10 +99,10 @@ def NaiveBayes(X_train, Y_train, X_test, Y_test):
     classifier.fit(X_train, Y_train)
 
     Y_pred = classifier.predict(X_test)
+    Y_prob = classifier.predict_proba(X_test)
 
-    evaluation(Y_test, Y_pred, model)
+    return evaluation(Y_test, Y_pred, Y_prob, model)
 
-    return
 
 def One_VS_Rest_SVM(X_train, Y_train, X_test, Y_test):
 
@@ -96,10 +113,10 @@ def One_VS_Rest_SVM(X_train, Y_train, X_test, Y_test):
     classifier.fit(X_train, Y_train)
 
     Y_pred = classifier.predict(X_test)
+    Y_prob = classifier.predict_proba(X_test)
 
-    evaluation(Y_test, Y_pred, model)
+    return evaluation(Y_test, Y_pred, Y_prob, model)
 
-    return
 
 def One_vs_One_SVM(X_train, Y_train, X_test, Y_test):
     model = 'one vs one svm'
@@ -108,14 +125,16 @@ def One_vs_One_SVM(X_train, Y_train, X_test, Y_test):
     classifier.fit(X_train, Y_train)
 
     Y_pred = classifier.predict(X_test)
+    Y_prob = None # classifier.predict_proba(X_test)
 
-    evaluation(Y_test, Y_pred, model)
-    return
+    return evaluation(Y_test, Y_pred, Y_prob, model)
+
 
 def RandomForest(X_train, Y_train, X_test, Y_test):
     model = 'random forest'
 
     #TODO: FINE TUNE RANDOM FOREST
+    # classifier = RandomForestClassifier(n_estimators=30)
     param_grid = {
             "n_estimators": [30, 50, 70],
              "max_depth": [3, 5, None],
@@ -130,10 +149,10 @@ def RandomForest(X_train, Y_train, X_test, Y_test):
     # classifier.fit(X_train, Y_train)
 
     Y_pred = classifier.predict(X_test)
+    Y_prob = classifier.predict_proba(X_test)
 
-    evaluation(Y_test, Y_pred, model)
+    return evaluation(Y_test, Y_pred, Y_prob, model)
 
-    return
 
 def AdaBoost(X_train, Y_train, X_test, Y_test):
     model = 'ada boost'
@@ -147,6 +166,7 @@ def AdaBoost(X_train, Y_train, X_test, Y_test):
     classifier.fit(X_train, Y_train)
 
     Y_pred = classifier.predict(X_test)
+    Y_prob = classifier.predict_proba(X_test)
 
-    evaluation(Y_test, Y_pred, model)
-    return
+    return evaluation(Y_test, Y_pred, Y_prob, model)
+
