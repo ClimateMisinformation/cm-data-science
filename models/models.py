@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
-import seaborn as sns; sns.set()
+import seaborn as sns
 import pandas as pd
-pd.set_option('precision', 2)
 from datetime import datetime
 from sklearn.model_selection import train_test_split
 from sklearn.multiclass import OneVsRestClassifier
@@ -13,7 +12,7 @@ from sklearn.ensemble import AdaBoostClassifier
 from sklearn.metrics import classification_report
 from sklearn.dummy import DummyClassifier
 from sklearn.naive_bayes import GaussianNB
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import RandomizedSearchCV
 from sklearn.model_selection import KFold
 from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
@@ -49,8 +48,8 @@ def evaluation(Y_test, Y_pred, Y_prob, model, fancy_plots=True):
 
     if fancy_plots:
         sns.heatmap(cm, square=False, annot=True, fmt='d', cbar=True, center=0)
-        plt.xlabel('actual')
-        plt.ylabel('predicted');
+        plt.xlabel('predicted')
+        plt.ylabel('actual');
         plt.show()
     else:
         print(cm)
@@ -105,12 +104,24 @@ def NaiveBayes(X_train, Y_train, X_test, Y_test):
 
 
 def One_VS_Rest_SVM(X_train, Y_train, X_test, Y_test):
+    model = 'one vs rest svm (tuned)'
 
-    model = 'one vs rest svm'
+    # classifier = OneVsRestClassifier(SVC(kernel='linear', class_weight='balanced', probability=True))
+    param_grid = {
+            "estimator__kernel": ["linear", "rbf", "sigmoid"],
+             "estimator__C": range(1, 100),
+            #  "estimator__gamma": ["scale", "auto"],
+            #  "estimator__degree": [1, 3, 5, 7],
+             }
+    kfold = KFold(n_splits=10, shuffle=True, random_state=42)
+    grid = RandomizedSearchCV(OneVsRestClassifier(SVC(random_state=42, class_weight='balanced', probability=True)), 
+            param_grid, cv=kfold, scoring="roc_auc_ovr", n_iter=20)
+    grid.fit(X_train, Y_train)
 
-    classifier = OneVsRestClassifier(SVC(kernel='linear', class_weight='balanced', probability=True))
+    print("\nTuned {0} parameters: {1}".format(model, grid.best_params_))
 
-    classifier.fit(X_train, Y_train)
+    classifier = grid.best_estimator_
+    # classifier.fit(X_train, Y_train)
 
     Y_pred = classifier.predict(X_test)
     Y_prob = classifier.predict_proba(X_test)
@@ -131,16 +142,18 @@ def One_vs_One_SVM(X_train, Y_train, X_test, Y_test):
 
 
 def RandomForest(X_train, Y_train, X_test, Y_test):
-    model = 'random forest'
+    model = 'random forest (tuned)'
 
-    #TODO: FINE TUNE RANDOM FOREST
     # classifier = RandomForestClassifier(n_estimators=30)
     param_grid = {
-            "n_estimators": [30, 50, 70],
+            "n_estimators": range(20, 100),
              "max_depth": [3, 5, None],
+             "max_features": ["auto", "sqrt", "log2"],
+            #  "min_samples_leaf": [1, 3, 5, 7]
              }
     kfold = KFold(n_splits=10, shuffle=True, random_state=42)
-    grid = GridSearchCV(RandomForestClassifier(random_state=42), param_grid, cv=kfold)
+    grid = RandomizedSearchCV(RandomForestClassifier(random_state=42), 
+            param_grid, cv=kfold, scoring="roc_auc_ovr", n_iter=100)
     grid.fit(X_train, Y_train)
 
     print("\nTuned {0} parameters: {1}".format(model, grid.best_params_))
