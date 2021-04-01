@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 import pandas as pd
 from datetime import datetime
 from sklearn.model_selection import train_test_split
@@ -108,14 +109,13 @@ def One_VS_Rest_SVM(X_train, Y_train, X_test, Y_test):
 
     # classifier = OneVsRestClassifier(SVC(kernel='linear', class_weight='balanced', probability=True))
     param_grid = {
-            "estimator__kernel": ["linear", "rbf", "sigmoid"],
-             "estimator__C": range(1, 100),
-            #  "estimator__gamma": ["scale", "auto"],
-            #  "estimator__degree": [1, 3, 5, 7],
+            "estimator__kernel": ["linear", "rbf"],
+             "estimator__C": np.linspace(0.1, 100, num=1000),
+             "estimator__gamma": np.linspace(0.0001, 10, num=10000),
              }
     kfold = KFold(n_splits=10, shuffle=True, random_state=42)
     grid = RandomizedSearchCV(OneVsRestClassifier(SVC(random_state=42, class_weight='balanced', probability=True)), 
-            param_grid, cv=kfold, scoring="roc_auc_ovr", n_iter=20)
+            param_grid, cv=kfold, scoring="roc_auc_ovr", n_iter=5)
     grid.fit(X_train, Y_train)
 
     print("\nTuned {0} parameters: {1}".format(model, grid.best_params_))
@@ -146,13 +146,12 @@ def RandomForest(X_train, Y_train, X_test, Y_test):
 
     # classifier = RandomForestClassifier(n_estimators=30)
     param_grid = {
-            "n_estimators": range(20, 100),
-             "max_depth": [3, 5, None],
-             "max_features": ["auto", "sqrt", "log2"],
-            #  "min_samples_leaf": [1, 3, 5, 7]
+            "max_depth": range(5, 20, 5),
+             "criterion": ["gini", "entropy"],
+             "max_features": ["auto", "sqrt", 0.2, 0.3, 0.4, 0.5],
              }
     kfold = KFold(n_splits=10, shuffle=True, random_state=42)
-    grid = RandomizedSearchCV(RandomForestClassifier(random_state=42), 
+    grid = RandomizedSearchCV(RandomForestClassifier(random_state=42, n_estimators=100), 
             param_grid, cv=kfold, scoring="roc_auc_ovr", n_iter=100)
     grid.fit(X_train, Y_train)
 
