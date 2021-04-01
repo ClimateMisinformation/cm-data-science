@@ -1,13 +1,13 @@
 FROM continuumio/miniconda3
 
-LABEL version="0.1"
+LABEL version="0.2"
 LABEL description="cm-ds"
 
 WORKDIR /data
 
 COPY . /data
 
-RUN pip install pandas seaborn scikit-learn jupyterlab
+RUN pip install pandas seaborn scikit-learn gensim nltk emoji jupyterlab
 
 EXPOSE 8888
 
