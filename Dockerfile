@@ -8,6 +8,7 @@ WORKDIR /data
 COPY . /data
 
 RUN pip install pandas seaborn scikit-learn gensim nltk emoji jupyterlab
+RUN python -m nltk.downloader stopwords wordnet
 
 EXPOSE 8888
 
