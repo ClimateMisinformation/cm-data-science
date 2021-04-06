@@ -115,7 +115,7 @@ def One_VS_Rest_SVM(X_train, Y_train, X_test, Y_test):
              }
     kfold = KFold(n_splits=10, shuffle=True, random_state=42)
     grid = RandomizedSearchCV(OneVsRestClassifier(SVC(random_state=42, class_weight='balanced', probability=True)), 
-            param_grid, cv=kfold, scoring="roc_auc_ovr", n_iter=5)
+            param_grid, cv=kfold, scoring="roc_auc_ovr", n_iter=5, random_state=42)
     grid.fit(X_train, Y_train)
 
     print("\nTuned {0} parameters: {1}".format(model, grid.best_params_))
@@ -152,7 +152,7 @@ def RandomForest(X_train, Y_train, X_test, Y_test):
              }
     kfold = KFold(n_splits=10, shuffle=True, random_state=42)
     grid = RandomizedSearchCV(RandomForestClassifier(random_state=42, n_estimators=100), 
-            param_grid, cv=kfold, scoring="roc_auc_ovr", n_iter=100)
+            param_grid, cv=kfold, scoring="roc_auc_ovr", n_iter=100, random_state=42)
     grid.fit(X_train, Y_train)
 
     print("\nTuned {0} parameters: {1}".format(model, grid.best_params_))
