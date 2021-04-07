@@ -11,8 +11,11 @@ In the models directory you will find the implementation of several models and t
 Docker setup...
 ```
 docker build -t cd-ds .
-docker run --rm -it -p 8888:8888 -v "`pwd`":/data cd-ds
+docker run --rm -it -p 8887:8887 -v "`pwd`":/data cd-ds
 ```
+
+Then follow the link with 127.0.0.1 to open Jupyterlab
+
 
 Model comparison...
 ![png](models/model_evaluation.PNG)
