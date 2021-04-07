@@ -5,11 +5,14 @@ LABEL description="cm-ds"
 
 WORKDIR /data
 
-COPY . /data
+COPY requirements.txt .
 
-RUN pip install pandas seaborn scikit-learn gensim nltk emoji jupyterlab
+RUN pip install -r requirements.txt
+
 RUN python -m nltk.downloader stopwords wordnet
 
-EXPOSE 8888
+COPY . /data
 
-CMD ["jupyter","lab","--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
+EXPOSE 8887
+
+CMD ["jupyter","lab","--ip=0.0.0.0", "--port=8887", "--no-browser", "--allow-root"]
