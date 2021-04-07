@@ -5,8 +5,10 @@ LABEL description="cm-ds"
 
 WORKDIR /data
 
-RUN pip install pandas seaborn scikit-learn gensim nltk emoji jupyterlab 
-RUN pip install pytest tqdm
+COPY requirements.txt .
+
+RUN pip install -r requirements.txt
+
 RUN python -m nltk.downloader stopwords wordnet
 
 COPY . /data

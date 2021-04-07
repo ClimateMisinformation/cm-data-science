@@ -1,0 +1,9 @@
+pandas 
+seaborn 
+scikit-learn
+gensim 
+nltk 
+emoji 
+jupyterlab 
+pytest 
+tqdm
