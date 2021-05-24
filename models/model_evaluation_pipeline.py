@@ -3,18 +3,26 @@ from models import *
 
 
 def import_data(embedding):
-
     try:
+        training_set = pd.read_csv("../labelled_data/embedded_data/" + embedding + "/train.csv", index_col=0)
+        test_set = pd.read_csv("../labelled_data/embedded_data/" + embedding + "/test.csv", index_col=0)
 
-        data = pd.read_csv("embedding_data/" + embedding + "test.csv", index_col=0)
-        print("Data loaded ", embedding)
-        print("Dataset shape ", data.shape)
-    except:
+        print("Training shape ", training_set.shape)
+        print("Test shape ", test_set.shape)
 
-        print("Error loading embedding data. Possible embedding types are: word2vec and tfidf")
+        print("Training target distributions ")
+        print(training_set['human_label'].value_counts())
+        print("Test target distributions ")
+        print(test_set['human_label'].value_counts())
 
-    print("Splitting data into train and test")
-    X_train, Y_train, X_test, Y_test = split_train_test(data)
+    except Exception as e:
+        print("Error loading embedding data. Possible embedding types are: word2vec, tfidf, bownorm")
+        raise e
+
+    X_train = training_set.iloc[:, :-1].values
+    Y_train = training_set.iloc[:, -1].values
+    X_test = test_set.iloc[:, :-1].values
+    Y_test = test_set.iloc[:, -1].values
 
     return X_train, Y_train, X_test, Y_test
 

@@ -1,5 +1,4 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import confusion_matrix
@@ -7,29 +6,6 @@ from sklearn.multiclass import OneVsOneClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.metrics import classification_report
-
-
-
-
-def split_train_test(data):
-
-
-    training_set, test_set = train_test_split(data, test_size=0.2, random_state=1)
-
-    print("Training shape ", training_set.shape)
-    print("Test shape ", test_set.shape)
-
-    print("Training target distributions ")
-    print(training_set['classes'].value_counts())
-    print("Test target distributions ")
-    print(test_set['classes'].value_counts())
-
-    X_train = training_set.iloc[:, :-1].values
-    Y_train = training_set.iloc[:, -1].values
-    X_test = test_set.iloc[:, :-1].values
-    Y_test = test_set.iloc[:, -1].values
-
-    return X_train, Y_train, X_test, Y_test
 
 
 def evaluation(Y_test, Y_pred, model):

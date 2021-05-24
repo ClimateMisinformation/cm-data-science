@@ -102,12 +102,11 @@ def class_encoding(df):
         print(str(x) + " is encoded to " + str(le.transform([x])))
 
     df_encoded = df.drop('label', axis=1)
-
-    df_encoded['labels'] = encoded_classes
+    df_encoded['human_label'] = encoded_classes
 
     return df_encoded
 
-def histogram_exploration_lengths(df):
+def length_historgram(df):
     '''
     Explore the lengths of articles, stored in column 'text_lens'
 
@@ -119,49 +118,39 @@ def histogram_exploration_lengths(df):
     '''
 
     print('Article length distributon')
-    print(df['text_lens'].describe())
+    print(df['text_length'].describe())
 
     print('Histogram lens of articles')
-    plt.hist(df['text_lens'], bins=50)
-    plt.ylabel('len articles')
+    plt.hist(df['text_length'], bins=50)
+    plt.xlabel('len articles')
     plt.show()
 
     return
 
 
 
-# Exploring len of articles
-def article_len_exploration(df):
+# Exploring len of documents and filters documents over 1500 words.
+def documents_len_exploration_and_filter(df, max_len=1500):
     '''
 
-    Splits article text and stores length.
-    Filters out long articles (>1500 words)
+    Splits document text and stores length.
+    Filters out long documents (>1500 words)
     Calls histogram_exploration_lengths function before and after filtering
 
     Parameters:
     df (dataframe): dataset as dataframe object.
+    max_len (int): articles of len > max_len will be filtered out.
 
     Returns:
-    df: filtered dataframe object where all articles are < 1500 words
+    df: filtered dataframe object where all documents are < 1500 words
 
     '''
 
-    list_of_texts = df['text'].tolist()
+    df['text_length'] = df['text'].apply(lambda text: len(text.split()))
 
-    text_lens = []
-
-    #TODO: list comprehension below
-
-    for text in list_of_texts:
-        text_lens.append(len(text.split()))
-
-    df['text_lens'] = text_lens
-
-    histogram_exploration_lengths(df)
-
-    df = df[df['text_lens'] < 1500]
-
-    histogram_exploration_lengths(df)
+    length_historgram(df)
+    df = df[df['text_length'] <= max_len]
+    length_historgram(df)
 
     return df
 
