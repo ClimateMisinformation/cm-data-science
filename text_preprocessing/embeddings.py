@@ -45,16 +45,16 @@ class VectorizerClassBase():
         '''
         raise NotImplementedError
 
-    def run(self, df, column_to_run_on='clean_text',label_column=None):
+    def run(self, df, column_to_run_on='clean_text',label_columns=[]):
         '''
         Runs vectorizer on dataframe df.
 
         :param df: Pandas Dataframe containing examples.
         :param column_to_run_on: name of column in df containing examples.
-          label_column: name of column containing human labels to copy into output df. If None, does nothing.
+        :param label_columns: names of column containing human labels to copy into output df. If None, does nothing.
 
         :return:
-          dataframe containining embedded data.
+          dataframe containing embedded data.
         '''
         raise NotImplementedError
 
@@ -94,7 +94,7 @@ class Word2VecVectorizerClass(VectorizerClassBase):
         path = api.load('word2vec-google-news-300', return_path=True)
         self.model = gensim.models.KeyedVectors.load_word2vec_format(path, binary=True)
 
-    def run(self, df, column_to_run_on='clean_text', label_column=None):
+    def run(self, df, column_to_run_on='clean_text', label_columns=[]):
         # reinitialize counters
         self.words_found = 0
         self.words_not_found = 0
@@ -103,7 +103,7 @@ class Word2VecVectorizerClass(VectorizerClassBase):
         list_of_averages = df[column_to_run_on].apply(lambda doc: self.get_avg_word2vec(doc)).to_list()
         final_df = pd.DataFrame(list_of_averages)
 
-        if label_column is not None:
+        for label_column in label_columns:
             final_df[label_column] = df[label_column].to_list()
         return final_df
 
@@ -125,7 +125,7 @@ class TfIdfVectorizerClass(VectorizerClassBase):
         docs = df[column_to_fit_on].to_list()
         self.model.fit(docs)
 
-    def run(self, df, column_to_run_on='clean_text', label_column=None):
+    def run(self, df, column_to_run_on='clean_text', label_columns=[]):
         docs = df[column_to_run_on].to_list()
         sparse_vectors = self.model.transform(docs)
         flattened_vectors = [sparse_vector.toarray().flatten() for sparse_vector in sparse_vectors]
@@ -133,7 +133,7 @@ class TfIdfVectorizerClass(VectorizerClassBase):
         final_df = pd.DataFrame(flattened_vectors)
         final_df.columns = self.model.get_feature_names()
 
-        if label_column is not None:
+        for label_column in label_columns:
             final_df[label_column] = df[label_column].to_list()
         return final_df
 
@@ -154,7 +154,7 @@ class NormBowVectorizerClass(VectorizerClassBase):
         docs = df[column_to_fit_on].to_list()
         self.model.fit(docs)
 
-    def run(self, df, column_to_run_on='clean_text', label_column=None):
+    def run(self, df, column_to_run_on='clean_text', label_columns=[]):
         docs = df[column_to_run_on].to_list()
         sparse_vectors = self.model.transform(docs)
         flattened_vectors = [sparse_vector.toarray().flatten() for sparse_vector in sparse_vectors]
@@ -162,7 +162,7 @@ class NormBowVectorizerClass(VectorizerClassBase):
         final_df = pd.DataFrame(flattened_vectors)
         final_df.columns = self.model.get_feature_names()
 
-        if label_column is not None:
+        for label_column in label_columns:
             final_df[label_column] = df[label_column].to_list()
         return final_df
 

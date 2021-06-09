@@ -76,35 +76,34 @@ def class_encoding(df):
     - 119: not climate denying -> encoded as 1
     - 120: not climate related -> encoded as 2
 
-    Saves encoded classes in column 'labels'.
+    Saves encoded classes in column 'human_label'.
     Uses sklearn label encoder.
 
     Parameters:
     df (dataframe): dataset as dataframe object
 
     Returns:
-    df: dataframe object with encoded classes
+    df: dataframe object with encoded classes.
+    label_columns: list of column names holdng labels.
     '''
 
-
+    # Multi classes.
     valid_classes = [118,119,120]
+    df_encoded = df[df['label'].isin(valid_classes)]
 
-    df = df[df['label'].isin(valid_classes)]
-
-    multi_class_values = df['label'].tolist()
-
+    multi_class_values = df_encoded['label'].tolist()
     le.fit(multi_class_values)
     encoded_classes = le.transform(multi_class_values)
-
     unique_classes = le.classes_
-
     for x in unique_classes:
         print(str(x) + " is encoded to " + str(le.transform([x])))
-
-    df_encoded = df.drop('label', axis=1)
     df_encoded['human_label'] = encoded_classes
 
-    return df_encoded
+    # Binary classes.
+    df_encoded['human_binary_label'] = df_encoded['human_label'].apply(lambda label: 1 if label > 0 else 0)
+
+    df_encoded = df_encoded.drop('label', axis=1)
+    return df_encoded, ['human_label', 'human_binary_label']
 
 def length_historgram(df):
     '''
