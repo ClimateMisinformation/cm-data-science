@@ -1,11 +1,25 @@
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
 import pandas as pd
+from datetime import datetime
+from sklearn.model_selection import train_test_split
 from sklearn.multiclass import OneVsRestClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.metrics import confusion_matrix
 from sklearn.multiclass import OneVsOneClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.metrics import classification_report
+from sklearn.dummy import DummyClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import KFold
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import roc_auc_score
+from sklearn.metrics import log_loss
 
 
 def import_embedded_data(embedding, label_columns=['human_label','human_binary_label'], label='human_label'):
