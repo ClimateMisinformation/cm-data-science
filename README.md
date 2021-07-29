@@ -39,7 +39,7 @@ code.
 2. Select 'Kerrnel' > 'Change kernel' > cm-venv
 
 
-##### Docker setup:
+### Docker setup
 ```
 docker build -t cd-ds .
 docker run --rm -it -p 8887:8887 -v "`pwd`":/data cd-ds
@@ -48,11 +48,11 @@ docker run --rm -it -p 8887:8887 -v "`pwd`":/data cd-ds
 Then follow the link with 127.0.0.1 to open Jupyterlab
 
 
-##### Model evaluation
+<!-- ##### Model evaluation
 
 Model comparison...
 ![png](models/model_evaluation.PNG)
 
 
 "Best" model...
-![png](models/model_evaluation_best.PNG)
+![png](models/model_evaluation_best.PNG) -->
