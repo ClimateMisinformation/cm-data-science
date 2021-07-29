@@ -7,10 +7,11 @@ jupyter-client==6.2.0
 jupyter-core==4.7.1
 matplotlib==3.4.2
 matplotlib-inline==0.1.2
+notebook==6.4.0
 nltk==3.6.2
 numpy==1.20.3
 pandas==1.2.4
 pickleshare==0.7.5
 seaborn==0.11.1
-scikit-learn==0.23.2
+scikit-learn==0.24.1
 scipy==1.6.3
