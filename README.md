@@ -6,11 +6,14 @@ Feel free to create your own branches and start playing around with the data tha
 
 You will find text preprocessing and embedding pipeline in the text_preprocessing directory. 
 
-In the models directory you will find the implementation of several models and their performance evaluation
+In the models directory you will find the implementation of several models and their performance evaluation.
 
-### Install dependences
+Notebooks directory contains any additional EDA.
 
-#####One time only: 
+
+### Option 1. Install dependences
+
+##### One time only: 
 - Set up virtual environment and add this environment to ipykernel.
 - The virtual environment allows you to install and use specific 
 packages for this project without interfering with other projects. 
@@ -36,4 +39,17 @@ code.
     ```
     jupyter notebook
     ```
-2. Select 'Kerrnel' > 'Change kernel' > cm-venv
+2. Select 'Kernel' > 'Change kernel' > cm-venv
+
+
+### Option 2. Docker setup
+
+Alternatively, can build a Docker image and run the code inside a container...
+
+    ```
+    docker build -t cd-ds .
+    docker run --rm -it -p 8887:8887 -v "`pwd`":/data cd-ds
+    ```
+
+Then follow the link with 127.0.0.1 to open Jupyter
+
