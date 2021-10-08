@@ -25,7 +25,8 @@ def run():
     models = ['onevsrest', 'onevsone', 'randomforest','adaboost']
 
     for embedding in embeddings:
-        print(embedding.upper())
+        print("\n\n##########\n\n{0}".format(embedding.upper()))
         X_train, Y_train, X_test, Y_test = import_embedded_data(embedding)
         for model in models:
+            print("\n\n----------\n\n{0} >> {1}".format(embedding.upper(), model.upper()))
             fit_predict(model, X_train, Y_train, X_test, Y_test)

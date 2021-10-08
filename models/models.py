@@ -54,7 +54,7 @@ def import_embedded_data(embedding, label_columns=['human_label','human_binary_l
 
     return X_train, Y_train, X_test, Y_test
 
-def evaluation(Y_test, Y_pred, Y_prob, model, fancy_plots=True, pos_label=0):
+def evaluation(Y_test, Y_pred, Y_prob, model, fancy_plots=False, pos_label=0):
     '''
     Evaluatets model predictions and/or scores on provided grounotruth.
     Handles binary and multi-class cases.
@@ -69,10 +69,12 @@ def evaluation(Y_test, Y_pred, Y_prob, model, fancy_plots=True, pos_label=0):
     '''
     # If binary problem, grab first col of Y_prob only.
     is_binary_problem = False
-    if len(Y_prob.shape) > 1 and Y_prob.shape[1] == 2:
+    if Y_prob is None:
+        is_binary_problem = True
+    elif len(Y_prob.shape) > 1 and Y_prob.shape[1] == 2:
         is_binary_problem = True
         Y_prob = Y_prob[:, 1:2]
-    if len(Y_prob.shape) == 1 or Y_prob.shape[1] == 1:
+    elif len(Y_prob.shape) == 1 or Y_prob.shape[1] == 1:
         is_binary_problem = True
     if is_binary_problem:
         print("Eval identified for binary problem.")
@@ -94,13 +96,13 @@ def evaluation(Y_test, Y_pred, Y_prob, model, fancy_plots=True, pos_label=0):
 
     rocauc, logloss = None, None
     if is_binary_problem:
-        precision = precision_score(Y_test, Y_pred, pos_label=pos_label)
-        recall = recall_score(Y_test, Y_pred, pos_label=pos_label)
+        precision = precision_score(Y_test, Y_pred, pos_label=pos_label, average="macro")
+        recall = recall_score(Y_test, Y_pred, pos_label=pos_label, average="macro")
         if Y_prob is not None:
             logloss = log_loss(Y_test, Y_prob)
             if pos_label == 0:
                 print('inverting scores and labels for rocauc because pos_label is set to 0...')
-                Y_prob = 1.0-Y_prob
+                Y_prob = 1.0 - Y_prob
                 Y_test = 1.0 - Y_test
             rocauc = roc_auc_score(Y_test, Y_prob)
     else:
@@ -117,7 +119,7 @@ def evaluation(Y_test, Y_pred, Y_prob, model, fancy_plots=True, pos_label=0):
                 "ROC AUC": rocauc,
                 "Cross-entropy loss": logloss,
                 }
-
+    print(eval_dict)
     return eval_dict
 
 def One_VS_Rest_SVM(X_train, Y_train, X_test, Y_test):
@@ -129,9 +131,9 @@ def One_VS_Rest_SVM(X_train, Y_train, X_test, Y_test):
     classifier.fit(X_train, Y_train)
 
     Y_pred = classifier.predict(X_test)
+    Y_prob = classifier.predict_proba(X_test)
 
-    evaluation(Y_test, Y_pred, model)
-
+    evaluation(Y_test, Y_pred, Y_prob, model)
     return
 
 def One_vs_One_SVM(X_train, Y_train, X_test, Y_test):
@@ -141,8 +143,9 @@ def One_vs_One_SVM(X_train, Y_train, X_test, Y_test):
     classifier.fit(X_train, Y_train)
 
     Y_pred = classifier.predict(X_test)
+    Y_prob = None
 
-    evaluation(Y_test, Y_pred, model)
+    evaluation(Y_test, Y_pred, Y_prob, model)
     return
 
 def RandomForest(X_train, Y_train, X_test, Y_test):
@@ -154,9 +157,9 @@ def RandomForest(X_train, Y_train, X_test, Y_test):
     classifier.fit(X_train, Y_train)
 
     Y_pred = classifier.predict(X_test)
+    Y_prob = classifier.predict_proba(X_test)
 
-    evaluation(Y_test, Y_pred, model)
-
+    evaluation(Y_test, Y_pred, Y_prob, model)
     return
 
 def AdaBoost(X_train, Y_train, X_test, Y_test):
@@ -171,6 +174,7 @@ def AdaBoost(X_train, Y_train, X_test, Y_test):
     classifier.fit(X_train, Y_train)
 
     Y_pred = classifier.predict(X_test)
+    Y_prob = classifier.predict_proba(X_test)
 
-    evaluation(Y_test, Y_pred, model)
+    evaluation(Y_test, Y_pred, Y_prob, model)
     return
