@@ -1,6 +1,6 @@
 # cm-data-science
 
-Hi all and welcome to the climate misinformation data science repo! 
+Hi all and welcome to the climate misinformation data science repo!
 
 Feel free to create your own branches and start playing around with the data that is stored in the labelled_data directory.
 
@@ -53,3 +53,15 @@ Alternatively, can build a Docker image and run the code inside a container...
 
 Then follow the link with 127.0.0.1 to open Jupyter
 
+
+## The results so far...
+
+So far we have a fairly simple model which classifies articles into one of three categories...
+* 0 - Climate denying
+* 1 - Climate related (not climate denying)
+* 2 - Not climate related
+
+We have experimented with a few classification algorithms (e.g. support vector machines, random forests, adaptive boosting) and feature representations (tf-idf, normalised bag-of-words, word2vec).
+
+Arguably the best results have been for a Random Forest with TF-IDF
+![png](models/model_evaluation_best.PNG)
