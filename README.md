@@ -53,3 +53,10 @@ Alternatively, can build a Docker image and run the code inside a container...
 
 Then follow the link with 127.0.0.1 to open Jupyter
 
+
+### Results so far...
+
+So far we have experimented with various classification models (e.g. support vector machines, random forests, adaptive boosting) and the three feature representations (tf-idf, normalised bag-of-words, word2vec).
+
+Arguably the best results have been for a Random Forest with TF-IDF
+![png](models/model_evaluation_best.PNG)
